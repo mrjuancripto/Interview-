@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Simulator — Disney Cruise Line Houseperson</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --deep: #0d1f3c;
+    --blue: #1a3a6b;
+    --accent: #c8a96e;
+    --accent2: #e8c87a;
+    --white: #f5f0e8;
+    --muted: #8a9ab5;
+    --success: #4caf82;
+    --danger: #e05c5c;
+    --card: #111e33;
+    --border: #1e3054;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 50%, #0d2040 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, #0a1a35 0%, transparent 50%);
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '⚓';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.03;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .header-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 42px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    margin: 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* MAIN */
+  .main { max-width: 800px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* CATEGORY BADGE */
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .category-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .q-number {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(17px, 3vw, 22px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--white);
+  }
+
+  /* INTERVIEWER ICON */
+  .interviewer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .interviewer-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .interviewer-name { font-size: 13px; color: var(--muted); }
+  .interviewer-name strong { display: block; color: var(--white); font-size: 14px; }
+
+  /* ANSWER SECTION */
+  .answer-section { margin-bottom: 20px; }
+  .answer-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* MIC BUTTON */
+  .mic-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    transition: all 0.3s;
+  }
+  .mic-area.listening {
+    border-color: var(--danger);
+    background: rgba(224,92,92,0.05);
+  }
+  .mic-area.has-audio {
+    border-color: var(--success);
+    background: rgba(76,175,130,0.05);
+  }
+  .mic-btn {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    transition: all 0.2s;
+    background: var(--blue);
+    color: var(--white);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .mic-btn:hover { transform: scale(1.05); }
+  .mic-btn.recording {
+    background: var(--danger);
+    animation: micpulse 1s infinite;
+  }
+  @keyframes micpulse {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(224,92,92,0.4); }
+    50%{ box-shadow: 0 0 0 14px rgba(224,92,92,0); }
+  }
+  .mic-status {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .mic-status.active { color: var(--danger); font-weight: 500; }
+  .mic-status.done { color: var(--success); }
+
+  /* TRANSCRIPT BOX */
+  .transcript-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--white);
+    min-height: 60px;
+    font-style: italic;
+    display: none;
+  }
+  .transcript-box.visible { display: block; }
+
+  /* SUGGESTED ANSWER */
+  .suggested-card {
+    background: rgba(200,169,110,0.07);
+    border: 1px solid rgba(200,169,110,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: none;
+  }
+  .suggested-card.visible { display: block; }
+  .suggested-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .suggested-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .tts-btn {
+    background: none;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tts-btn:hover { background: rgba(200,169,110,0.15); }
+  .tts-btn.playing { background: rgba(200,169,110,0.2); }
+  .suggested-text {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #cdd8e8;
+  }
+  .highlight {
+    background: rgba(200,169,110,0.15);
+    border-radius: 4px;
+    padding: 1px 4px;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* FOLLOW-UP */
+  .followup-card {
+    background: rgba(26,58,107,0.4);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    display: none;
+  }
+  .followup-card.visible { display: block; }
+  .followup-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .followup-text {
+    font-size: 14px;
+    color: var(--white);
+    font-style: italic;
+  }
+
+  /* ACTIONS */
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--navy);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,169,110,0.3); }
+  .btn-secondary {
+    background: var(--border);
+    color: var(--white);
+  }
+  .btn-secondary:hover { background: var(--blue); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--white); border-color: var(--muted); }
+
+  /* SCORE */
+  .score-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    display: none;
+  }
+  .score-area.visible { display: flex; }
+  .score-label { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .score-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .score-btn:hover.good { border-color: var(--success); color: var(--success); background: rgba(76,175,130,0.1); }
+  .score-btn:hover.ok { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,0.1); }
+  .score-btn:hover.bad { border-color: var(--danger); color: var(--danger); background: rgba(224,92,92,0.1); }
+  .score-btn.selected.good { border-color: var(--success); color: var(--success); background: rgba(76,175,130,0.15); }
+  .score-btn.selected.ok { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,0.15); }
+  .score-btn.selected.bad { border-color: var(--danger); color: var(--danger); background: rgba(224,92,92,0.15); }
+
+  /* COUNTER */
+  .counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .counter strong { color: var(--white); font-size: 15px; }
+
+  /* FINAL SCREEN */
+  .final-screen {
+    text-align: center;
+    padding: 48px 24px;
+    display: none;
+  }
+  .final-screen.visible { display: block; }
+  .trophy { font-size: 64px; margin-bottom: 20px; }
+  .final-screen h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    margin-bottom: 12px;
+    color: var(--accent);
+  }
+  .score-summary {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+  .score-pill {
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .pill-green { background: rgba(76,175,130,0.2); color: var(--success); border: 1px solid var(--success); }
+  .pill-yellow { background: rgba(200,169,110,0.2); color: var(--accent); border: 1px solid var(--accent); }
+  .pill-red { background: rgba(224,92,92,0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+  /* TIPS BAR */
+  .tips-bar {
+    background: rgba(200,169,110,0.08);
+    border: 1px solid rgba(200,169,110,0.2);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .tips-bar span { color: var(--accent); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  @media (max-width: 600px) {
+    .question-card { padding: 20px 18px; }
+    .actions { flex-direction: column; }
+    .btn { min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-tag">✦ Interview Prep</div>
+  <h1>Disney Cruise Line<br><span>Houseperson Interview</span></h1>
+  <p>Simulador de entrevista personalizado · Grabá tu respuesta y comparala con la respuesta sugerida</p>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="main">
+
+  <div class="tips-bar">
+    <span>💡</span>
+    <div>Respondé en inglés cuando puedas. Presioná <strong>🎤 Grabar</strong> para hablar, luego <strong>Ver respuesta sugerida</strong> para comparar. Usá el botón ▶ para escucharla.</div>
+  </div>
+
+  <div class="counter">
+    <span>Pregunta <strong id="qNum">1</strong> de <strong>12</strong></span>
+    <span id="scoreDisplay">✅ 0 &nbsp; 🟡 0 &nbsp; ❌ 0</span>
+  </div>
+
+  <div id="questionArea"></div>
+  <div class="final-screen" id="finalScreen"></div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    category: "Personal Introduction",
+    q: "Tell me about yourself and why you are interested in working on a cruise ship.",
+    suggested: `My name is Juan Jose Sanchez, I'm 30 years old and I'm from La Paz, Mendoza, Argentina. I have over <span class="highlight">6 years of experience in housekeeping and facility maintenance</span> — working at a municipal hostel, stadium complex, and hotel, always in physically demanding, multi-area operations. I'm hardworking, reliable, and I adapt easily to new environments and multicultural teams. What really motivated me to pursue this opportunity was a 7-day Mediterranean cruise I took in December 2024 on the MSC Lirica — a gift from my aunt. Watching the housekeeping crew work, seeing how they kept everything pristine while guests enjoyed themselves, I knew <span class="highlight">I could do that job and do it well</span>. That experience made me decide to pursue a position in cruise hospitality seriously.`,
+    followup: "What specifically impressed you most about the crew you observed on the MSC Lirica?"
+  },
+  {
+    category: "Motivation",
+    q: "Why do you want to work for Disney Cruise Line specifically?",
+    suggested: `Disney Cruise Line stands out because of its <span class="highlight">reputation for the highest standards of cleanliness and guest experience</span> in the industry. During my cruise on the MSC Lirica I got to understand what life on board looks like — the rhythm of the ship, working in tight spaces, being part of a crew. Disney's commitment to making every guest feel special aligns with how I approach my work. I don't just clean — I make sure the space feels welcoming and ready. <span class="highlight">Disney represents the best, and I want to be part of that standard.</span>`,
+    followup: "How did your experience as a passenger change your perspective on what the crew actually does?"
+  },
+  {
+    category: "Work Experience",
+    q: "Describe your housekeeping experience. What were your main responsibilities?",
+    suggested: `For over 5 years at the <span class="highlight">Municipal Hostel and Stadium Complex in Mendoza</span>, I worked full-time on the morning shift from 6am to 2pm. My responsibilities included daily preparation and restocking of cleaning carts with linen, amenities, and supplies — very similar to what a Houseperson does on a ship. I cleaned shared rooms, bathrooms, locker rooms, and common areas, and transported soiled and clean linen between floors and the laundry area. I also prepared the stadium for events of up to <span class="highlight">3,000 people</span>. Most recently, at Hotel Segundo Roma, I handled full room service, bed making, and guest interaction. I'm used to physically demanding, non-stop shifts.`,
+    followup: "How many rooms or areas were you typically responsible for in a single shift?"
+  },
+  {
+    category: "Teamwork",
+    q: "Can you give an example of working effectively as part of a team under pressure?",
+    suggested: `At the hostel complex I regularly worked alongside other staff across three areas — the hostel, the park, and the stadium — all in the same shift. When there was a large event, <span class="highlight">everyone's role shifted and we had to coordinate quickly without being told twice.</span> For example, before a stadium event I would help prepare the areas while also covering my regular hostel duties. I learned to prioritize, communicate with the team, and stay calm when things were moving fast. I also worked alongside the municipal events team on weekends — setting up for hundreds of guests — which required <span class="highlight">constant communication and physical teamwork.</span>`,
+    followup: "Tell me about a time when a colleague didn't pull their weight — how did you handle it?"
+  },
+  {
+    category: "Guest Service",
+    q: "How do you handle a guest complaint about cleanliness?",
+    suggested: `First I listen carefully and don't interrupt — the guest needs to feel heard. Then I <span class="highlight">apologize sincerely, without making excuses</span>, and immediately take action to fix the issue. At Hotel Segundo Roma I had a guest who was unhappy with the bathroom. I apologized, went back in, and cleaned it again thoroughly — checking every corner this time. I then let the supervisor know so the standard could be reviewed. <span class="highlight">The guest thanked me personally afterward.</span> I believe every complaint is an opportunity to do better, not a problem to hide.`,
+    followup: "What would you do if a guest was rude or aggressive toward you?"
+  },
+  {
+    category: "Ship Life",
+    q: "Are you prepared to live and work on a ship for months away from home? How will you handle that?",
+    suggested: `Yes, absolutely. I've thought about this carefully and I'm fully prepared. When I was on the <span class="highlight">MSC Lirica for 7 days</span> I paid attention to how the crew lived — the shared spaces, the routines, the discipline required. I come from a background where I worked double roles simultaneously for years — morning shifts in the hostel and evening shifts teaching. I know how to <span class="highlight">manage fatigue, stay focused, and maintain a positive attitude</span> even when the work is hard. Being away from home is a sacrifice I'm willing to make because this is an opportunity I've chosen deliberately, not by accident.`,
+    followup: "What will you do on your days off or downtime on the ship to keep your mental wellbeing?"
+  },
+  {
+    category: "Physical Fitness",
+    q: "This role is physically demanding — long shifts, constant movement, heavy lifting. Can you handle that?",
+    suggested: `Absolutely — physical work is what I know best. For over 5 years I worked <span class="highlight">8-hour shifts on my feet, every day</span>, moving between a hostel, a park, and a stadium. I transported equipment, lifted heavy loads, operated irrigation systems, and didn't have the option to slow down when events were happening. I also balanced a <span class="highlight">part-time teaching job in the evenings</span> on top of that. I'm fit, I don't have any physical limitations, and I genuinely enjoy work that keeps me active. Standing still in an office would be harder for me than a full day of physical work.`,
+    followup: "Have you ever had a work-related injury? How do you approach safety on the job?"
+  },
+  {
+    category: "Languages",
+    q: "What is your English level and how do you communicate with international guests?",
+    suggested: `My English is at a <span class="highlight">B1 working proficiency level</span> — I can hold conversations, understand instructions, and communicate clearly with guests for day-to-day needs. I understand that for a Houseperson role, most communication is practical — asking if a guest needs anything, responding to requests, coordinating with the team. I'm comfortable with that. I also speak <span class="highlight">native Spanish and basic Portuguese</span>. Since my interview with CAUX I've been actively studying English every day to improve, specifically for this opportunity. I understand it's a key part of the job and I'm committed to getting better.`,
+    followup: "Can you say something to a guest in English right now — for example, greet them and offer assistance?"
+  },
+  {
+    category: "Situational",
+    q: "You are restocking a corridor when a guest asks you for directions to the restaurant. You don't know exactly where it is. What do you do?",
+    suggested: `I smile and stay calm — <span class="highlight">the guest should never feel like they're an inconvenience</span>. I'd say something like "Of course, let me help you" and either use the ship map or radio a colleague immediately to get the right information. I would never guess or give wrong directions. If it takes 30 seconds to confirm, I'd let the guest know I'm finding out for them right now. <span class="highlight">Admitting I don't know something is not a problem — leaving a guest without help is.</span>`,
+    followup: "What if the guest seemed frustrated and impatient while you were finding out?"
+  },
+  {
+    category: "Motivation (MSC Experience)",
+    q: "You mentioned traveling on a cruise. How did that experience change your view of this work?",
+    suggested: `It completely changed my perspective. Before December 2024 I knew about cruise ships but never imagined working on one. My aunt gave me a 7-day cruise on the <span class="highlight">MSC Lirica through the Mediterranean</span> as a gift — it was my first time on a ship. What surprised me most was watching the crew. The housekeeping team was invisible in the best possible way — you'd leave your cabin and come back to find it perfect. I started noticing <span class="highlight">how much effort and coordination</span> went into that. I spoke to a few crew members and learned about the contracts, the life on board, the opportunities. I came back to Argentina and started looking for exactly this type of position. It wasn't luck — it was a decision.`,
+    followup: "Which port or destination from that cruise made the biggest impression on you, and why?"
+  },
+  {
+    category: "Values & Character",
+    q: "What are your three strongest qualities that make you right for this role?",
+    suggested: `First, <span class="highlight">physical reliability</span> — I've never missed a shift, I work long hours without complaining, and I genuinely enjoy demanding physical work. Second, <span class="highlight">adaptability</span> — for years I worked three different roles simultaneously in very different environments: a hostel, a stadium, events, and a school. I adapt quickly to new teams, new instructions, and new challenges. Third, <span class="highlight">attention to standards</span> — as a teacher I understood that discipline and consistency matter. A clean room that's only 90% done is not acceptable. I take quality seriously because I know it directly affects how guests feel.`,
+    followup: "And what is one weakness you're actively working on?"
+  },
+  {
+    category: "Closing",
+    q: "Do you have any questions for us about the Houseperson position or life on Disney Cruise Line?",
+    suggested: `Yes, thank you. I have a few questions. First — <span class="highlight">what does a typical daily schedule look like for a Houseperson</span> on board, in terms of shift structure and area assignments? Second — what opportunities are there for <span class="highlight">crew development or promotion</span> after a first contract? I'm not in a hurry, but I'd like to understand the path forward. And third — how does Disney support crew <span class="highlight">language learning or skill development</span> during contracts? I'm committed to improving my English and any support in that area would be very meaningful to me.`,
+    followup: null
+  }
+];
+
+let current = 0;
+let scores = { good: 0, ok: 0, bad: 0 };
+let recognition = null;
+let isRecording = false;
+let speechSynth = window.speechSynthesis;
+let currentUtterance = null;
+
+// Check speech recognition support
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const hasSpeechRecognition = !!SpeechRecognition;
+
+function updateProgress() {
+  const pct = ((current) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('qNum').textContent = current + 1;
+  document.getElementById('scoreDisplay').innerHTML =
+    `✅ ${scores.good} &nbsp; 🟡 ${scores.ok} &nbsp; ❌ ${scores.bad}`;
+}
+
+function renderQuestion() {
+  if (current >= questions.length) { showFinal(); return; }
+  updateProgress();
+  const q = questions[current];
+  const area = document.getElementById('questionArea');
+
+  area.innerHTML = `
+    <div class="category-badge"><div class="dot"></div>${q.category}</div>
+    <div class="question-card">
+      <div class="interviewer-row">
+        <div class="interviewer-avatar">👤</div>
+        <div class="interviewer-name">
+          <strong>CAUX / Disney Recruiter</strong>
+          Interview Question
+        </div>
+      </div>
+      <div class="q-number">Q${current + 1} of ${questions.length}</div>
+      <div class="question-text">"${q.q}"</div>
+    </div>
+
+    <div class="answer-section">
+      <div class="answer-label">Tu respuesta</div>
+      <div class="mic-area" id="micArea">
+        <button class="mic-btn" id="micBtn" onclick="toggleRecording()" title="Grabar respuesta">🎤</button>
+        <div class="mic-status" id="micStatus">${hasSpeechRecognition ? 'Presioná para grabar tu respuesta en inglés' : 'Reconocimiento de voz no disponible en este navegador — escribí tu respuesta abajo'}</div>
+        ${!hasSpeechRecognition ? '<textarea id="manualInput" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid #1e3054;border-radius:8px;padding:12px;color:#f5f0e8;font-family:DM Sans,sans-serif;font-size:14px;resize:vertical;min-height:80px" placeholder="Type your answer here..."></textarea>' : ''}
+      </div>
+      <div class="transcript-box" id="transcriptBox"></div>
+    </div>
+
+    <div class="suggested-card" id="suggestedCard">
+      <div class="suggested-header">
+        <div class="suggested-label">✦ Respuesta sugerida</div>
+        <button class="tts-btn" id="ttsBtn" onclick="toggleTTS()">▶ Escuchar</button>
+      </div>
+      <div class="suggested-text" id="suggestedText">${q.suggested}</div>
+    </div>
+
+    ${q.followup ? `
+    <div class="followup-card" id="followupCard">
+      <div class="followup-label">🔁 Repregunta del entrevistador</div>
+      <div class="followup-text">"${q.followup}"</div>
+    </div>` : ''}
+
+    <div class="score-area" id="scoreArea">
+      <div style="width:100%">
+        <div class="score-label">¿Cómo te fue en esta pregunta?</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="score-btn good" onclick="scoreQuestion('good')">✅ Bien</button>
+          <button class="score-btn ok" onclick="scoreQuestion('ok')">🟡 Regular</button>
+          <button class="score-btn bad" onclick="scoreQuestion('bad')">❌ A mejorar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="showAnswer()">👁 Ver respuesta sugerida</button>
+      <button class="btn btn-primary" onclick="nextQuestion()">Siguiente pregunta →</button>
+    </div>
+  `;
+
+  // Read question aloud automatically
+  speak(q.q);
+}
+
+function toggleRecording() {
+  if (!hasSpeechRecognition) return;
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  const micBtn = document.getElementById('micBtn');
+  const micArea = document.getElementById('micArea');
+  const micStatus = document.getElementById('micStatus');
+  const transcriptBox = document.getElementById('transcriptBox');
+
+  recognition.onstart = () => {
+    isRecording = true;
+    micBtn.classList.add('recording');
+    micBtn.textContent = '⏹';
+    micArea.classList.add('listening');
+    micStatus.className = 'mic-status active';
+    micStatus.textContent = '🔴 Grabando... hablá en inglés';
+    transcriptBox.classList.add('visible');
+    transcriptBox.textContent = '...';
+  };
+
+  recognition.onresult = (e) => {
+    let final = '';
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    transcriptBox.textContent = (final + interim) || '...';
+  };
+
+  recognition.onerror = (e) => {
+    micStatus.className = 'mic-status';
+    micStatus.textContent = 'Error: ' + e.error + '. Intentá de nuevo.';
+    stopRecording();
+  };
+
+  recognition.onend = () => {
+    if (isRecording) recognition.start(); // keep going
+  };
+
+  recognition.start();
+}
+
+function stopRecording() {
+  if (recognition) { recognition.stop(); recognition = null; }
+  isRecording = false;
+  const micBtn = document.getElementById('micBtn');
+  const micArea = document.getElementById('micArea');
+  const micStatus = document.getElementById('micStatus');
+  if (micBtn) {
+    micBtn.classList.remove('recording');
+    micBtn.textContent = '🎤';
+    micArea.classList.remove('listening');
+    micArea.classList.add('has-audio');
+    micStatus.className = 'mic-status done';
+    micStatus.textContent = '✅ Respuesta grabada. Ahora compará con la respuesta sugerida.';
+  }
+  // Show score area
+  const scoreArea = document.getElementById('scoreArea');
+  if (scoreArea) scoreArea.classList.add('visible');
+}
+
+function showAnswer() {
+  const card = document.getElementById('suggestedCard');
+  const followup = document.getElementById('followupCard');
+  if (card) card.classList.add('visible');
+  if (followup) followup.classList.add('visible');
+  const scoreArea = document.getElementById('scoreArea');
+  if (scoreArea) scoreArea.classList.add('visible');
+  // Stop recording if active
+  if (isRecording) stopRecording();
+}
+
+function speak(text) {
+  if (!speechSynth) return;
+  if (currentUtterance) { speechSynth.cancel(); }
+  // Strip HTML tags
+  const clean = text.replace(/<[^>]*>/g, '');
+  currentUtterance = new SpeechSynthesisUtterance(clean);
+  currentUtterance.lang = 'en-US';
+  currentUtterance.rate = 0.92;
+  currentUtterance.pitch = 1;
+  // Try to pick a good voice
+  const voices = speechSynth.getVoices();
+  const preferred = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+                    voices.find(v => v.lang === 'en-US') || voices[0];
+  if (preferred) currentUtterance.voice = preferred;
+  speechSynth.speak(currentUtterance);
+}
+
+function toggleTTS() {
+  const btn = document.getElementById('ttsBtn');
+  if (speechSynth.speaking) {
+    speechSynth.cancel();
+    if (btn) { btn.textContent = '▶ Escuchar'; btn.classList.remove('playing'); }
+    return;
+  }
+  const text = document.getElementById('suggestedText').textContent;
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-US';
+  utt.rate = 0.88;
+  const voices = speechSynth.getVoices();
+  const preferred = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+                    voices.find(v => v.lang === 'en-US');
+  if (preferred) utt.voice = preferred;
+  utt.onstart = () => { if (btn) { btn.textContent = '⏸ Pausar'; btn.classList.add('playing'); } };
+  utt.onend = () => { if (btn) { btn.textContent = '▶ Escuchar'; btn.classList.remove('playing'); } };
+  speechSynth.speak(utt);
+}
+
+function scoreQuestion(score) {
+  scores[score]++;
+  document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`.score-btn.${score}`).classList.add('selected');
+  updateProgress();
+}
+
+function nextQuestion() {
+  if (isRecording) stopRecording();
+  if (speechSynth) speechSynth.cancel();
+  current++;
+  if (current >= questions.length) { showFinal(); return; }
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showFinal() {
+  document.getElementById('questionArea').style.display = 'none';
+  const total = scores.good + scores.ok + scores.bad;
+  const pct = total > 0 ? Math.round((scores.good / total) * 100) : 0;
+  const emoji = pct >= 70 ? '🏆' : pct >= 50 ? '💪' : '📚';
+  const msg = pct >= 70
+    ? '¡Excelente preparación! Estás listo para la entrevista.'
+    : pct >= 50
+    ? 'Buen trabajo. Repasá las preguntas donde te costó más.'
+    : 'Seguí practicando. Repetí el simulador hasta sentirte cómodo.';
+
+  document.getElementById('finalScreen').innerHTML = `
+    <div class="trophy">${emoji}</div>
+    <h2>Simulación completada</h2>
+    <p style="color:var(--muted);margin-bottom:20px">${msg}</p>
+    <div class="score-summary">
+      <div class="score-pill pill-green">✅ Bien: ${scores.good}</div>
+      <div class="score-pill pill-yellow">🟡 Regular: ${scores.ok}</div>
+      <div class="score-pill pill-red">❌ A mejorar: ${scores.bad}</div>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:32px">Puntaje de confianza: ${pct}%</p>
+    <button class="btn btn-primary" onclick="restartSim()" style="max-width:300px;margin:0 auto">🔄 Repetir simulación</button>
+  `;
+  document.getElementById('finalScreen').classList.add('visible');
+  document.getElementById('progressFill').style.width = '100%';
+}
+
+function restartSim() {
+  current = 0;
+  scores = { good: 0, ok: 0, bad: 0 };
+  document.getElementById('finalScreen').classList.remove('visible');
+  document.getElementById('questionArea').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Init voices
+if (speechSynth) {
+  speechSynth.onvoiceschanged = () => speechSynth.getVoices();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
